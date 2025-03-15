@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Tic-Tac-Toe</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0d0d0d;
+            text-align: center;
+            color: white;
+        }
+
+        /* Title */
+        h1 {
+            font-size: 36px;
+            margin-top: 20px;
+            text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+        }
+
+        /* Game Board */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 40px auto;
+            width: 320px;
+        }
+
+        /* Cells */
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #222;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 188, 212, 0.7);
+        }
+
+        .cell:hover {
+            background: #333;
+        }
+
+        /* Glowing X and O */
+        .cell.X {
+            color: #ff1744;
+            text-shadow: 0 0 10px #ff1744, 0 0 20px #ff1744;
+        }
+
+        .cell.O {
+            color: #00e676;
+            text-shadow: 0 0 10px #00e676, 0 0 20px #00e676;
+        }
+
+        /* Status Display */
+        #status {
+            font-size: 24px;
+            margin: 20px;
+            text-shadow: 0 0 10px #ffea00, 0 0 20px #ffea00;
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px #00bcd4;
+        }
+
+        .reset-btn:hover {
+            background: #008ba3;
+            box-shadow: 0 0 15px #00bcd4;
+        }
+
+        /* Win Popup */
+        .win-popup {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px 40px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transition: 0.5s;
+            text-align: center;
+        }
+
+        .win-popup.show {
+            top: 20%;
+        }
+
+        .win-popup .reset-btn {
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Glowing Tic-Tac-Toe</h1>
+    <div id="status">Player X's Turn</div>
+    
+    <div class="board" id="board">
+        <div class="cell" onclick="handleClick(0)"></div>
+        <div class="cell" onclick="handleClick(1)"></div>
+        <div class="cell" onclick="handleClick(2)"></div>
+        <div class="cell" onclick="handleClick(3)"></div>
+        <div class="cell" onclick="handleClick(4)"></div>
+        <div class="cell" onclick="handleClick(5)"></div>
+        <div class="cell" onclick="handleClick(6)"></div>
+        <div class="cell" onclick="handleClick(7)"></div>
+        <div class="cell" onclick="handleClick(8)"></div>
+    </div>
+
+    <button class="reset-btn" onclick="resetGame()">Restart Game</button>
+
+    <!-- Win Popup -->
+    <div id="winPopup" class="win-popup"></div>
+
+    <script>
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let gameActive = true;
+
+        function handleClick(index) {
+            if (board[index] === "" && gameActive) {
+                board[index] = currentPlayer;
+                document.getElementsByClassName("cell")[index].textContent = currentPlayer;
+                document.getElementsByClassName("cell")[index].classList.add(currentPlayer);
+                checkWinner();
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                document.getElementById("status").textContent = gameActive ? `Player ${currentPlayer}'s Turn` : "";
+            }
+        }
+
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]             // Diagonals
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    showWinPopup(board[a]);
+                    gameActive = false;
+                    return;
+                }
+            }
+
+            if (!board.includes("")) {
+                showWinPopup("Draw");
+                gameActive = false;
+            }
+        }
+
+        function showWinPopup(winner) {
+            let popup = document.getElementById("winPopup");
+            if (winner === "Draw") {
+                popup.innerHTML = `🤝 It's a Draw!<br><button class="reset-btn" onclick="resetGame()">Play Again</button>`;
+                popup.style.boxShadow = "0 0 20px white";
+            } else {
+                popup.innerHTML = `🏆 Player ${winner} Wins!<br><button class="reset-btn" onclick="resetGame()">Play Again</button>`;
+                popup.style.boxShadow = winner === "X" ? "0 0 20px #ff1744" : "0 0 20px #00e676";
+            }
+            popup.classList.add("show");
+        }
+
+        function resetGame() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            currentPlayer = "X";
+            document.getElementById("status").textContent = "Player X's Turn";
+            document.querySelectorAll(".cell").forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove("X", "O");
+            });
+            document.getElementById("winPopup").classList.remove("show");
+        }
+    </script>
+
+</body>
+</html>
